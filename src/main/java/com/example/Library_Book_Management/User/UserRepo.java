@@ -1,0 +1,10 @@
+package com.example.Library_Book_Management.User;
+
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface UserRepo extends JpaRepository<User,Long> {
+
+  Optional<User> findByEmail(String email);
+}
