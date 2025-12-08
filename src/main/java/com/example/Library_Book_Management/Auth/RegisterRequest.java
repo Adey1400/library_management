@@ -15,5 +15,9 @@ public class RegisterRequest {
     private String lastname;
     private String email;
     private String password;
-    private Role role; // The user chooses: STUDENT or LIBRARIAN
+    private Role role; 
+
+
+    private String department;
+    private String rollNo;
 }

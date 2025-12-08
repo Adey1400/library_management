@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import api from "../api/axios";
+import api from "../services/api";
+import { BookOpenIcon, UserIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 
 export default function IssueBook() {
   const [students, setStudents] = useState([]);
@@ -7,85 +8,113 @@ export default function IssueBook() {
   const [issue, setIssue] = useState({ studentId: "", bookId: "" });
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
 
   useEffect(() => {
-    const load = async () => {
+    const loadData = async () => {
       setLoading(true);
       try {
         const [sRes, bRes] = await Promise.all([api.get("/student"), api.get("/book")]);
         setStudents(sRes.data || []);
         setBooks(bRes.data || []);
       } catch (err) {
-        console.error(err);
-        alert("Failed to load students or books: " + (err.message || ""));
+        alert("Failed to load data");
       } finally {
         setLoading(false);
       }
     };
-    load();
+    loadData();
   }, []);
 
-  const handleIssue = async () => {
-    if (!issue.studentId || !issue.bookId) {
-      alert("Please select both student and book");
-      return;
-    }
+  const handleIssue = async (e) => {
+    e.preventDefault();
     setIssuing(true);
+    setSuccessMsg("");
     try {
       await api.post(`/issue/student/${issue.studentId}/book/${issue.bookId}`);
-      alert("📘 Book issued successfully!");
-      // optionally refresh lists
+      setSuccessMsg("Book issued successfully!");
+      setIssue({ studentId: "", bookId: "" });
+      // Refresh books to update availability if needed
       const bRes = await api.get("/book");
       setBooks(bRes.data || []);
-      setIssue({ studentId: "", bookId: "" });
     } catch (error) {
-      console.error(error);
-      alert("❌ Failed to issue book: " + (error.message || error.response?.data || ""));
+      alert("Failed: " + (error.response?.data?.message || "Unknown error"));
     } finally {
       setIssuing(false);
     }
   };
 
-  if (loading) return <div className="p-6">Loading...</div>;
+  if (loading) return <div className="flex justify-center p-10">Loading resources...</div>;
 
   return (
-    <div className="p-6 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6">Issue a Book</h1>
+    <div className="max-w-xl mx-auto mt-10">
+      <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+        <div className="bg-indigo-600 px-8 py-6">
+          <h1 className="text-2xl font-bold text-white">Issue a Book</h1>
+          <p className="text-indigo-100 text-sm mt-1">Assign a book to a registered student</p>
+        </div>
 
-      <div className="flex flex-col gap-4 w-full max-w-md">
-        <select
-          className="border p-2 rounded"
-          value={issue.studentId}
-          onChange={(e) => setIssue({ ...issue, studentId: e.target.value })}
-        >
-          <option value="">Select Student</option>
-          {students.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
+        <div className="p-8">
+          {successMsg && (
+            <div className="mb-6 p-4 bg-green-50 text-green-700 border border-green-200 rounded-lg flex items-center gap-2">
+              <span className="text-xl">🎉</span> {successMsg}
+            </div>
+          )}
 
-        <select
-          className="border p-2 rounded"
-          value={issue.bookId}
-          onChange={(e) => setIssue({ ...issue, bookId: e.target.value })}
-        >
-          <option value="">Select Book</option>
-          {books.map((b) => (
-            <option key={b.id} value={b.id}>
-              {b.bookName}
-            </option>
-          ))}
-        </select>
+          <form onSubmit={handleIssue} className="space-y-6">
+            {/* Student Select */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Select Student</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <UserIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <select
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white appearance-none"
+                  value={issue.studentId}
+                  onChange={(e) => setIssue({ ...issue, studentId: e.target.value })}
+                  required
+                >
+                  <option value="">Choose a student...</option>
+                  {students.map((s) => (
+                    <option key={s.id} value={s.id}>{s.name} ({s.email})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
 
-        <button
-          disabled={!issue.studentId || !issue.bookId || issuing}
-          onClick={handleIssue}
-          className={`px-4 py-2 rounded text-white ${(!issue.studentId || !issue.bookId || issuing) ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
-        >
-          {issuing ? "Issuing..." : "Issue Book"}
-        </button>
+            {/* Book Select */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Select Book</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <BookOpenIcon className="h-5 w-5 text-gray-400" />
+                </div>
+                <select
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white appearance-none"
+                  value={issue.bookId}
+                  onChange={(e) => setIssue({ ...issue, bookId: e.target.value })}
+                  required
+                >
+                  <option value="">Choose a book...</option>
+                  {books.map((b) => (
+                    <option key={b.id} value={b.id}>{b.bookName} (Author: {b.author})</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={issuing}
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {issuing ? "Processing..." : (
+                <>Issue Book <ArrowRightIcon className="w-5 h-5" /></>
+              )}
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

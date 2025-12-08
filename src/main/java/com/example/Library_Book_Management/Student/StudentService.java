@@ -22,12 +22,13 @@ public List<Student> getAllStudents(){
 
 
   //add Student
-  public void addStudent(Student student){
+  public Student addStudent(Student student){
      Optional<Student> existingStudent =studentRepository.findByEmail(student.getEmail());
      if(existingStudent.isPresent()){
         throw new IllegalStateException("Student with email"+student.getEmail()+"already exist");
      }
      studentRepository.save(student);
+     return student;
   }
 
    // Delete student by ID

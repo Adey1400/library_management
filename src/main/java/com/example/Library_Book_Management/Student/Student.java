@@ -1,15 +1,17 @@
 package com.example.Library_Book_Management.Student;
 
-import com.example.Library_Book_Management.Books.Books;
+import com.example.Library_Book_Management.User.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder; 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
-import java.util.List;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -17,25 +19,20 @@ import java.util.List;
 public class Student {
 
     @Id
-    @SequenceGenerator(
-            name = "student_sequence",
-            sequenceName = "student_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "student_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    // Profile Details
+    private String name;       
     private String email;
     private String department;
     private String rollNo;
+    
+    @Builder.Default
     private LocalDate joinedDate = LocalDate.now();
 
-    // 🔗 Relationship: one student can have multiple books
-    @OneToMany
-    @JoinColumn(name = "student_id")
-    private List<Books> borrowedBooks;
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 }

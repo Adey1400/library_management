@@ -1,29 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from './components/Navbar';
-import BooksPages from './pages/BookPages';
-import Students from './pages/StudentPage';
-import IssueBook from './pages/IssueBook';
-function App() {
-  const [count, setCount] = useState(0)
+import "./index.css"; // Ensure this matches your file name (index.css or App.css)
 
+// Pages
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import BookPages from "./pages/BookPages";
+import Students from "./pages/StudentPage";
+import IssueBook from "./pages/IssueBook";
+
+// Components
+import Layout from "./components/Layout";
+
+function App() {
   return (
-    <>
-         <Router>
-      <Navbar />
-      <div className="p-6">
-        <Routes>
-          <Route path="/" element={<BooksPages />} />
-          <Route path="/students" element={<Students/>}/>
+    <Router>
+      <Routes>
+        {/* --- PUBLIC ROUTES (No Navbar) --- */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* --- PROTECTED ROUTES (Has Navbar) --- */}
+
+        <Route element={<Layout />}>
+          <Route path="/books" element={<BookPages />} />
+          <Route path="/students" element={<Students />} />
           <Route path="/issues" element={<IssueBook />} />
-        </Routes>
-      </div>
+        </Route>
+      </Routes>
     </Router>
-    </>
-  )
+  );
 }
 
-export default App
+export default App;

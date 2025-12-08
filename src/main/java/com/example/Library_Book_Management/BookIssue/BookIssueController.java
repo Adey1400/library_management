@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "api/v1/issue")
+@RequestMapping(path = "/issue")
 // @CrossOrigin("*") // Uncomment this if not handled in WebConfig
 public class BookIssueController {
 

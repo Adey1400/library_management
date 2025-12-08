@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(path= "api/v1/book")
+@RequestMapping(path= "/book")
 public class BooksController {
   private final BooksService booksService;
 
@@ -32,12 +32,12 @@ public class BooksController {
     booksService.addBooks(books);
   }
 
-  @DeleteMapping(path="{bookId}")
+  @DeleteMapping(path="/{bookId}")
   public void deleteBooks(@PathVariable("bookId") Long bookId){
     booksService.deleteBooks(bookId);
   }
 
- @PutMapping(path = "{bookId}")
+ @PutMapping(path = "/{bookId}")
     public void updatebook(@PathVariable("bookId") Long bookId, @RequestBody Books books) {
         booksService.updateBooks(bookId, books);
     }

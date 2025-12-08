@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "api/v1/student")
+@RequestMapping(path = "/student")
 public class StudentController {
 
     private final StudentService studentService;
@@ -15,20 +15,19 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    // 🔹 Get all students
     @GetMapping
     public List<Student> getAllStudents() {
         return studentService.getAllStudents();
     }
 
-    // 🔹 Add new student
+
     @PostMapping
     public void registerNewStudent(@RequestBody Student student) {
         studentService.addStudent(student);
     }
 
-    // 🔹 Delete student by ID
-    @DeleteMapping(path = "{studentId}")
+  
+    @DeleteMapping(path = "/{studentId}")
     public void deleteStudent(@PathVariable("studentId") Long studentId) {
         studentService.deleteStudent(studentId);
     }

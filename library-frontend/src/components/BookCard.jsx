@@ -1,60 +1,106 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { TrashIcon } from "@heroicons/react/24/outline";
+import api from "../services/api"; 
+import { 
+  TrashIcon, 
+  BookOpenIcon, 
+  UserIcon, 
+  CalendarIcon, 
+  HandRaisedIcon 
+} from "@heroicons/react/24/outline";
 import { formatDate } from "../lib/utils";
 
-/**
- * props:
- *  - book: { id, bookName, author, createdAt }
- *  - onDelete: async function(bookId) => Promise
- */
 export default function BookCard({ book, onDelete }) {
-  const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [requesting, setRequesting] = useState(false);
 
+ 
   const handleDelete = async () => {
-    const yes = window.confirm(`Delete "${book.bookName}" by ${book.author}?`);
-    if (!yes) return;
+    if (!window.confirm(`Delete "${book.bookName}"?`)) return;
+    setDeleting(true);
     try {
-      setLoading(true);
       await onDelete(book.id);
-      // parent should remove it from list; we just show loading state
     } catch (err) {
-      // show friendly error — you can replace with toast
-      alert("Delete failed: " + (err?.message || "unknown error"));
+      alert("Failed: " + err.message);
     } finally {
-      setLoading(false);
+      setDeleting(false);
+    }
+  };
+
+ 
+  const handleRequest = async () => {
+    const studentId = prompt("Enter your Student ID to request this book:");
+    if (!studentId) return;
+
+    setRequesting(true);
+    try {
+      await api.post(`/issue/request/student/${studentId}/book/${book.id}`);
+      alert("Request sent! Waiting for Librarian approval.");
+    } catch (err) {
+      alert("Request failed: " + (err.response?.data || err.message));
+    } finally {
+      setRequesting(false);
     }
   };
 
   return (
-    <article
-      className="bg-white shadow-sm rounded-xl p-4 border border-gray-100 hover:shadow-md transition"
-      role="article"
-      aria-labelledby={`book-${book.id}-title`}
-    >
-      <h3 id={`book-${book.id}-title`} className="text-lg font-semibold text-indigo-700">
-        {book.bookName || "Untitled"}
-      </h3>
-      <p className="text-gray-600">Author: {book.author || "Unknown"}</p>
-      {book.createdAt && <p className="text-xs text-gray-400">Added: {formatDate(book.createdAt)}</p>}
-      <div className="mt-3 flex justify-end">
-        <button
-          onClick={handleDelete}
-          disabled={loading}
-          aria-label={`Delete ${book.bookName}`}
-          className={`text-sm px-3 py-1 rounded-md transition ${
-            loading
-              ? "bg-red-300 text-white cursor-not-allowed"
-              : "bg-red-500 text-white hover:bg-red-600"
-          }`}
-        >
-          {loading ? "Deleting..." : (
-            <span className="flex items-center gap-2">
-              <TrashIcon className="w-4 h-4" />
-              Delete
-            </span>
+    <article className="group flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
+      <div>
+        <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+          <BookOpenIcon className="h-6 w-6" />
+        </div>
+
+        <h3 className="line-clamp-2 text-lg font-bold text-gray-900" title={book.bookName}>
+          {book.bookName || "Untitled Book"}
+        </h3>
+        
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <UserIcon className="h-4 w-4 text-gray-400" />
+            <span className="line-clamp-1">{book.author || "Unknown Author"}</span>
+          </div>
+          
+          {book.createdAt && (
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <CalendarIcon className="h-4 w-4 text-gray-400" />
+              <span>Added {formatDate(book.createdAt)}</span>
+            </div>
           )}
-        </button>
+        </div>
+      </div>
+
+      <div className="mt-5 border-t border-gray-100 pt-4 flex justify-between items-center gap-2">
+        
+        <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${book.isIssued ? "bg-amber-100 text-amber-700" : "bg-green-100 text-green-700"}`}>
+          {book.isIssued ? "Busy" : "Available"}
+        </span>
+        
+        <div className="flex gap-2">
+          {!book.isIssued && (
+            <button
+              onClick={handleRequest}
+              disabled={requesting}
+              className="flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+              title="Request this book"
+            >
+              {requesting ? "..." : <HandRaisedIcon className="h-4 w-4" />}
+            </button>
+          )}
+
+          
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+            title="Delete this book"
+          >
+            {deleting ? (
+              <span className="animate-pulse">...</span>
+            ) : (
+              <TrashIcon className="h-4 w-4" />
+            )}
+          </button>
+        </div>
       </div>
     </article>
   );
