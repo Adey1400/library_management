@@ -23,11 +23,14 @@ public class BookIssueController {
     // ==========================================
 
     // 1. Student Requests a Book
-    @PostMapping("/request/student/{studentId}/book/{bookId}")
-    public ResponseEntity<String> requestBook(@PathVariable Long studentId, @PathVariable Long bookId) {
+    @PostMapping("/request/book/{bookId}")
+    public ResponseEntity<String> requestBook(
+            @PathVariable Long bookId, 
+            @RequestParam String rollNo 
+    ) {
         try {
-            bookIssueService.requestBook(studentId, bookId);
-            return ResponseEntity.ok("Book requested successfully! Waiting for Librarian approval.");
+            bookIssueService.requestBook(rollNo, bookId);
+            return ResponseEntity.ok("Book requested successfully!");
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

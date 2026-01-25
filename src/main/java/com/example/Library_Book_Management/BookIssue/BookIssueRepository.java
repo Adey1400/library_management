@@ -14,4 +14,7 @@ public interface BookIssueRepository extends JpaRepository<BookIssue, Long> {
 
     // Find specific student history
     List<BookIssue> findAllByStudentId(Long studentId);
+
+    //Count how many copies are currently busy (Requested or Issued)
+    Long countByBookIdAndStatusIn(Long bookId, List<IssueStatus> statuses);
 }

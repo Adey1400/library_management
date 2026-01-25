@@ -28,20 +28,26 @@ export default function BookCard({ book, onDelete }) {
   };
 
  
-  const handleRequest = async () => {
-    const studentId = prompt("Enter your Student ID to request this book:");
-    if (!studentId) return;
 
-    setRequesting(true);
-    try {
-      await api.post(`/issue/request/student/${studentId}/book/${book.id}`);
-      alert("Request sent! Waiting for Librarian approval.");
-    } catch (err) {
-      alert("Request failed: " + (err.response?.data || err.message));
-    } finally {
-      setRequesting(false);
+
+const handleRequest = async () => {
+   
+    const myRollNo = localStorage.getItem("rollNo"); 
+
+    if (!myRollNo) {
+        alert("Roll Number not found. Please log in again.");
+        return;
     }
-  };
+
+    try {
+        // 🟢 encodeURIComponent is crucial! It turns "/" into "%2F" so the URL doesn't break
+        await api.post(`/issue/request/book/${book.id}?rollNo=${encodeURIComponent(myRollNo)}`);
+        
+        alert("Request sent successfully!");
+    } catch (err) {
+        alert(err.response?.data || "Request failed");
+    }
+};
 
   return (
     <article className="group flex flex-col justify-between rounded-2xl border border-gray-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">

@@ -22,20 +22,18 @@ public class BookIssueService {
     }
 
     // 1. STUDENT REQUESTS BOOK
-    public void requestBook(Long studentId, Long bookId) {
-        var student = studentRepository.findById(studentId)
+    public void requestBook(String rollNo, Long bookId) {
+        var student = studentRepository.findByRollNo(rollNo)
                 .orElseThrow(() -> new IllegalStateException("Student not found"));
         var book = booksRepository.findById(bookId)
                 .orElseThrow(() -> new IllegalStateException("Book not found"));
-
+        Long activeIssues=bookIssueRepository.countByBookIdAndStatusIn(bookId , List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED));
         // Check if book is already requested or issued to ANYONE (simple logic)
         // ideally, you check if copies > 0
-        boolean isUnavailable = bookIssueRepository.existsByBookIdAndStatusIn(
-                bookId, List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED));
-
-        if (isUnavailable) {
-            throw new IllegalStateException("Book is currently unavailable or requested by someone else.");
-        }
+        if (activeIssues >= book.getCopies()) {
+    throw new IllegalStateException("All copies of this book are currently issued or requested.");
+}
+       
 
         BookIssue issue = new BookIssue();
         issue.setStudent(student);

@@ -31,9 +31,18 @@ public class Books {
     private LocalDate issuedDate;
     private LocalDate returnDate;
     private Boolean isIssued = false;
+    private Integer copies = 5;
+    public Books(String bookName, String author,Integer copies) {
+        this.bookName = bookName;
+        this.author = author;
+        this.copies = copies;
+        this.isIssued = false;
+    }
+    // Legacy Constructor (defaults copies to 1)
     public Books(String bookName, String author) {
         this.bookName = bookName;
         this.author = author;
+        this.copies = 1; // Default
         this.isIssued = false;
     }
 }
