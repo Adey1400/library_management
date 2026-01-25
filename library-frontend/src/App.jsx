@@ -8,7 +8,7 @@ import Register from "./pages/Register";
 import BookPages from "./pages/BookPages";
 import Students from "./pages/StudentPage";
 import IssueBook from "./pages/IssueBook";
-
+import Profile from "./pages/Profile"
 // Components
 import Layout from "./components/Layout";
 
@@ -27,6 +27,7 @@ function App() {
           <Route path="/books" element={<BookPages />} />
           <Route path="/students" element={<Students />} />
           <Route path="/issues" element={<IssueBook />} />
+           <Route path="/profile" element={<Profile/>} />
         </Route>
       </Routes>
     </Router>

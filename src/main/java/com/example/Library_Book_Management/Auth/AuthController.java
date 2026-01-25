@@ -21,6 +21,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
+        System.out.println("👉 LOGIN ATTEMPT: [" + request.getEmail() + "]");
+        
         return ResponseEntity.ok(authService.authRequest(request));
     }
 }

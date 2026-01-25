@@ -8,24 +8,28 @@ import com.example.Library_Book_Management.User.User;
 import com.example.Library_Book_Management.User.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@RequiredArgsConstructor // Generates constructor for final fields (Cleaner than @Autowired)
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepo userRepo;
-    private final StudentRepository studentRepo; // 🟢 Inject Student Repo
+    private final StudentRepository studentRepo;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional 
     public AuthResponse registerRequest(RegisterRequest request) {
       
-        // 1. Create and Save User (Login Credentials)
-        var user = User.builder()
+        System.out.println("👉 Registering User: " + request.getEmail());
+
+        User user = User.builder()
                 .firstname(request.getFirstname())
                 .lastname(request.getLastname())
                 .email(request.getEmail())
@@ -33,45 +37,66 @@ public class AuthService {
                 .role(request.getRole())
                 .build();
 
-       
+
+
         User savedUser = userRepo.save(user);
 
-     
+
         if (request.getRole() == Role.STUDENT) {
+            System.out.println("👉 Creating Student Profile for: " + request.getRollNo());
+            
             var student = Student.builder()
                     .name(request.getFirstname() + " " + request.getLastname())
                     .email(request.getEmail())
                     .department(request.getDepartment())
                     .rollNo(request.getRollNo())        
-                    .user(savedUser)                    
+                    .user(savedUser)             
                     .build();
-            
             
             studentRepo.save(student);
         }
 
+
         var jwtToken = jwtService.generateToken(user);
  
+
         return AuthResponse.builder()
                 .token(jwtToken)
-                .build();
+                .role(user.getRole().name()) 
+                .name(user.getFirstname())   
+                .build();                    
     }
 
     public AuthResponse authRequest(AuthRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        System.out.println("👉 Login Attempt for: [" + request.getEmail() + "]");
 
-        var user = userRepo.findByEmail(request.getEmail())
-                .orElseThrow(); 
+        try {
+         
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
-        var jwtToken = jwtService.generateToken(user);
+      
+            User user = userRepo.findByEmail(request.getEmail())
+                    .orElseThrow(() -> new IllegalArgumentException("User found in Auth but not in DB"));
 
-        return AuthResponse.builder()
-                .token(jwtToken)
-                .build();
-    }
+   
+            var jwtToken = jwtService.generateToken(user);
+            System.out.println("✅ Login Successful. Token Generated.");
+
+            
+            return AuthResponse.builder()
+                    .token(jwtToken)
+                    .role(user.getRole().name()) 
+                    .name(user.getFirstname())  
+                    .build();
+
+        } catch (Exception e) {
+            System.out.println("❌ Login Failed: " + e.getMessage());
+            throw new BadCredentialsException("Invalid Email or Password");
+        }
 }
+    }

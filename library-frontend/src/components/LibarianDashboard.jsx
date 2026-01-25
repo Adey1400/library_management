@@ -3,7 +3,6 @@ import api from "../services/api";
 import Loader from "../components/Loader";
 import { CheckCircleIcon, XCircleIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { formatDate } from "../lib/utils";
-
 export default function LibrarianDashboard() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +11,7 @@ export default function LibrarianDashboard() {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      // Matches your backend: @GetMapping("/pending")
+    
       const res = await api.get("/issue/pending");
       setRequests(res.data || []);
     } catch (err) {
@@ -29,10 +28,9 @@ export default function LibrarianDashboard() {
   // 2. Handle Approve
   const handleApprove = async (issueId) => {
     try {
-      // Matches backend: @PutMapping("/approve/{issueId}")
       await api.put(`/issue/approve/${issueId}`);
       alert("Request Approved! Book is now Issued.");
-      fetchRequests(); // Refresh list
+      fetchRequests(); 
     } catch (err) {
       alert("Approval Failed");
     }

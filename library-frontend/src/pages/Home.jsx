@@ -2,6 +2,9 @@ import { Link } from "react-router-dom";
 import { BookOpenIcon, ShieldCheckIcon, UserGroupIcon } from "@heroicons/react/24/outline";
 
 export default function Home() {
+  // Check if token exists to determine state
+  const isLoggedIn = !!localStorage.getItem("token");
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
@@ -14,20 +17,32 @@ export default function Home() {
           Please log in to access the dashboard.
         </p>
         
-        <div className="flex justify-center gap-4">
-          <Link 
-            to="/login" 
-            className="px-8 py-3 bg-white text-indigo-700 font-bold rounded-lg hover:bg-gray-100 transition shadow-lg"
-          >
-            Login
-          </Link>
-          <Link 
-            to="/register" 
-            className="px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-indigo-600 transition"
-          >
-            Register
-          </Link>
-        </div>
+        {/* 🟢 CONDITIONAL RENDERING */}
+        {isLoggedIn ? (
+          <div className="flex justify-center">
+            <Link 
+              to="/books" 
+              className="px-8 py-3 bg-white text-indigo-700 font-bold rounded-lg hover:bg-gray-100 transition shadow-lg flex items-center gap-2"
+            >
+              Go to Dashboard <span aria-hidden="true">&rarr;</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="flex justify-center gap-4">
+            <Link 
+              to="/login" 
+              className="px-8 py-3 bg-white text-indigo-700 font-bold rounded-lg hover:bg-gray-100 transition shadow-lg"
+            >
+              Login
+            </Link>
+            <Link 
+              to="/register" 
+              className="px-8 py-3 border-2 border-white text-white font-bold rounded-lg hover:bg-indigo-600 transition"
+            >
+              Register
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Rules & Guidelines Section */}

@@ -36,7 +36,7 @@ public class SecurityConfiguration {
                 return config;
             }))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/login", "/error").permitAll() 
+                .requestMatchers("/register", "/login", "/error","/book/**").permitAll() 
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() 
                 .anyRequest().authenticated()
             )

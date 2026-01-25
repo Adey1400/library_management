@@ -26,7 +26,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "users")
-public class User implements UserDetails { // <--- FIXED: Must implement UserDetails interface
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,14 +38,14 @@ public class User implements UserDetails { // <--- FIXED: Must implement UserDet
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role;        // Required by your AuthService
+    private Role role;      
 
-    // --- UserDetails Methods ---
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // FIXED: imported List, and ensure 'role' is not null
-        return List.of(new SimpleGrantedAuthority(role.name()));
+
+        return List.of(new SimpleGrantedAuthority(this.role.name()));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class User implements UserDetails { // <--- FIXED: Must implement UserDet
 
     @Override
     public String getUsername() {
-        return email; // We return email as the unique username
+        return email; 
     }
 
     @Override

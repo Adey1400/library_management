@@ -1,9 +1,28 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { BookOpenIcon, Bars3Icon, XMarkIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { 
+  BookOpenIcon, 
+  Bars3Icon, 
+  XMarkIcon, 
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon 
+} from "@heroicons/react/24/outline";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  // 🟢 1. GET USER INFO
+  const role = localStorage.getItem("role"); // "STUDENT" or "LIBRARIAN"
+  const name = localStorage.getItem("name");
+
+  // 🟢 2. LOGOUT LOGIC
+  const handleLogout = () => {
+    if (window.confirm("Are you sure you want to logout?")) {
+      localStorage.clear(); // Wipe token, role, name
+      navigate("/"); // Redirect to Home
+    }
+  };
 
   const navLinkClass = ({ isActive }) =>
     `px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -28,16 +47,35 @@ export default function Navbar() {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center space-x-2">
+          {/* Everyone sees Books */}
           <NavLink to="/books" className={navLinkClass}>Books</NavLink>
-          <NavLink to="/students" className={navLinkClass}>Students</NavLink>
-          <NavLink to="/issues" className={navLinkClass}>Issue Book</NavLink>
+          
+          {/* 🟢 LIBRARIAN ONLY LINKS */}
+          {role === "LIBRARIAN" && (
+            <>
+              <NavLink to="/students" className={navLinkClass}>Students</NavLink>
+              <NavLink to="/issues" className={navLinkClass}>Approvals</NavLink>
+            </>
+          )}
+
+          {/* 🟢 STUDENT ONLY LINKS */}
+          {role === "STUDENT" && (
+            <NavLink to="/profile" className={navLinkClass}>My Profile</NavLink>
+          )}
         </div>
 
-        {/* Right Side: Actions */}
+        {/* Right Side: Profile & Logout */}
         <div className="hidden md:flex items-center gap-4">
-          <button className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 transition">
-            <UserCircleIcon className="h-5 w-5" />
-            <span>Admin</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-50 rounded-full border border-gray-200">
+            <UserCircleIcon className="h-5 w-5 text-indigo-600" />
+            <span className="capitalize">{name || "User"} ({role})</span>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition"
+            title="Logout"
+          >
+            <ArrowRightOnRectangleIcon className="h-5 w-5" />
           </button>
         </div>
 
@@ -53,9 +91,24 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden border-t border-gray-100 bg-white px-4 py-4 shadow-lg space-y-2">
-          <NavLink to="/" className={navLinkClass} onClick={() => setIsOpen(false)}>Books</NavLink>
-          <NavLink to="/students" className={navLinkClass} onClick={() => setIsOpen(false)}>Students</NavLink>
-          <NavLink to="/issues" className={navLinkClass} onClick={() => setIsOpen(false)}>Issue Book</NavLink>
+          <NavLink to="/books" className={navLinkClass} onClick={() => setIsOpen(false)}>Books</NavLink>
+          
+          {role === "LIBRARIAN" && (
+            <>
+              <NavLink to="/students" className={navLinkClass} onClick={() => setIsOpen(false)}>Students</NavLink>
+              <NavLink to="/issues" className={navLinkClass} onClick={() => setIsOpen(false)}>Approvals</NavLink>
+            </>
+          )}
+           
+          {role === "STUDENT" && (
+            <NavLink to="/profile" className={navLinkClass} onClick={() => setIsOpen(false)}>My Profile</NavLink>
+          )}
+
+          <div className="border-t border-gray-100 mt-2 pt-2">
+             <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-red-600 font-medium">
+               Logout
+             </button>
+          </div>
         </div>
       )}
     </nav>

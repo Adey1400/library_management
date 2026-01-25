@@ -11,12 +11,27 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-        console.log("Sending Login Data:", form);
+      console.log("Sending Login Data:", form);
       const res = await api.post("/login", form);
-      localStorage.setItem("token", res.data.token);
-      navigate("/books"); 
+      console.log("🟢 Server Response:", res.data);
+     if (res.data && res.data.token) {
+          console.log("✅ Token found! Saving to storage...");
+          localStorage.setItem("token", res.data.token);
+          localStorage.setItem("role", res.data.role);
+          localStorage.setItem("name", res.data.name);
+          
+          // Verify it was saved
+          console.log("🔍 Saved Token:", localStorage.getItem("token"));
+          
+          navigate("/books"); 
+      } else {
+          console.error("❌ Response missing token:", res.data);
+          alert("Login successful but no token received!");
+      }
     } catch (err) {
-      alert("Login Failed: Invalid credentials");
+      console.error("Login Error Details:", err);
+      const msg = err.response?.data?.error || "Invalid credentials";
+      alert("Login Failed: " + msg);
     } finally {
       setLoading(false);
     }
@@ -43,7 +58,7 @@ export default function Login() {
                 value={form.email}
                 className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="you@example.com"
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                onChange={(e) => setForm({ ...form, email: e.target.value.trim() })}
               />
             </div>
             <div>
@@ -54,7 +69,7 @@ export default function Login() {
                 value={form.password}
                 className="appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="••••••••"
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                onChange={(e) => setForm({ ...form, password: e.target.value.trim() })}
               />
             </div>
           </div>
@@ -62,7 +77,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-70"
+            className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors disabled:opacity-70 cursor-pointer"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>
