@@ -13,11 +13,12 @@ export default function Register() {
   
   const [loading, setLoading] = useState(false);
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+    
+    // 1. Clear old data to prevent conflicts
+    localStorage.clear();
    
     const payload = {
       ...form,
@@ -25,10 +26,33 @@ export default function Register() {
     };
 
     try {
-      await api.post("/register", payload);
-      alert("Registration Successful!");
-      navigate("/books");
+      // 2. Send Request
+      const res = await api.post("/register", payload);
+      
+      // 🟢 CRITICAL FIX: Save the new Token before navigating!
+      if (res.data && res.data.token) {
+          localStorage.setItem("token", res.data.token);
+          localStorage.setItem("role", res.data.role);
+          localStorage.setItem("name", res.data.name);
+          
+
+          if (res.data.rollNo) {
+            localStorage.setItem("rollNo", res.data.rollNo);
+          }
+
+
+          window.dispatchEvent(new Event("storage"));
+
+          alert("Registration Successful!");
+          navigate("/books");
+      } else {
+
+          alert("Registration Successful! Please Login.");
+          navigate("/login");
+      }
+
     } catch (err) {
+      console.error(err);
       alert("Registration Failed: " + (err.response?.data?.message || "Unknown error"));
     } finally {
       setLoading(false);
@@ -45,7 +69,6 @@ export default function Register() {
         <p className="text-gray-500 mb-10">Choose your account type to continue</p>
 
         <div className="grid md:grid-cols-2 gap-6 w-full max-w-2xl">
-        
           <button 
             onClick={() => setSelectedRole("STUDENT")}
             className="flex flex-col items-center p-8 bg-white rounded-2xl border-2 border-transparent hover:border-indigo-600 hover:shadow-xl transition-all group cursor-pointer"
@@ -54,9 +77,7 @@ export default function Register() {
               <UserIcon className="h-8 w-8" />
             </div>
             <h3 className="text-xl font-bold text-gray-900">Student</h3>
-            <p className="text-gray-500 text-center mt-2 text-sm">
-              Borrow books, view history, and request issues.
-            </p>
+            <p className="text-gray-500 text-center mt-2 text-sm">Borrow books, view history, and request issues.</p>
           </button>
 
           <button 
@@ -67,9 +88,7 @@ export default function Register() {
               <BookOpenIcon className="h-8 w-8" />
             </div>
             <h3 className="text-xl font-bold text-gray-900">Librarian</h3>
-            <p className="text-gray-500 text-center mt-2 text-sm">
-              Manage inventory, approve requests, and returns.
-            </p>
+            <p className="text-gray-500 text-center mt-2 text-sm">Manage inventory, approve requests, and returns.</p>
           </button>
         </div>
 
@@ -82,12 +101,10 @@ export default function Register() {
     );
   }
 
-
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-xl w-full bg-white p-8 rounded-2xl shadow-xl border border-gray-100 relative">
         
-      
         <button 
           onClick={() => setSelectedRole(null)}
           className="absolute top-6 left-6 text-gray-400 hover:text-gray-700 flex items-center gap-1 text-sm transition-colors"
@@ -125,7 +142,7 @@ export default function Register() {
             <input type="password" name="password" onChange={handleChange} required className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none" />
           </div>
 
-       
+          {/* Conditional Rendering for Student Fields */}
           {selectedRole === "STUDENT" && (
             <div className="pt-4 border-t border-gray-100 mt-4 animate-fade-in">
               <h4 className="text-sm font-semibold text-indigo-700 mb-3">Academic Details</h4>

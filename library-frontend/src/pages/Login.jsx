@@ -10,6 +10,9 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    //clearing old token before login in
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
     try {
       console.log("Sending Login Data:", form);
       const res = await api.post("/login", form);
