@@ -37,10 +37,9 @@ public class AuthService {
                 .role(request.getRole())
                 .build();
 
-
-
         User savedUser = userRepo.save(user);
-
+        
+        String rollNo = null;
 
         if (request.getRole() == Role.STUDENT) {
             System.out.println("👉 Creating Student Profile for: " + request.getRollNo());
@@ -54,16 +53,16 @@ public class AuthService {
                     .build();
             
             studentRepo.save(student);
+            rollNo = request.getRollNo(); 
         }
-
 
         var jwtToken = jwtService.generateToken(user);
  
-
         return AuthResponse.builder()
                 .token(jwtToken)
                 .role(user.getRole().name()) 
-                .name(user.getFirstname())   
+                .name(user.getFirstname())
+                .rollNo(rollNo) 
                 .build();                    
     }
 
@@ -71,32 +70,39 @@ public class AuthService {
         System.out.println("👉 Login Attempt for: [" + request.getEmail() + "]");
 
         try {
-         
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             request.getEmail(),
                             request.getPassword()
                     )
             );
-
       
             User user = userRepo.findByEmail(request.getEmail())
                     .orElseThrow(() -> new IllegalArgumentException("User found in Auth but not in DB"));
 
-   
             var jwtToken = jwtService.generateToken(user);
             System.out.println("✅ Login Successful. Token Generated.");
 
             
+            String rollNo = null;
+            if (user.getRole() == Role.STUDENT) {
+               
+                var student = studentRepo.findByEmail(request.getEmail());
+                if (student.isPresent()) {
+                    rollNo = student.get().getRollNo();
+                }
+            }
+            
             return AuthResponse.builder()
                     .token(jwtToken)
                     .role(user.getRole().name()) 
-                    .name(user.getFirstname())  
+                    .name(user.getFirstname())
+                    .rollNo(rollNo) 
                     .build();
 
         } catch (Exception e) {
             System.out.println("❌ Login Failed: " + e.getMessage());
             throw new BadCredentialsException("Invalid Email or Password");
         }
-}
     }
+}

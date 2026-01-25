@@ -82,4 +82,27 @@ public class BookIssueController {
         bookIssueService.returnBook(issueId);
         return ResponseEntity.ok("Book returned successfully.");
     }
+
+    // 8. Direct Issue (By Student ID) - Kept for backup/legacy
+    @PostMapping("/student/{studentId}/book/{bookId}")
+    public ResponseEntity<String> directIssue(@PathVariable Long studentId, @PathVariable Long bookId) {
+        try {
+            bookIssueService.issueBookDirectly(studentId, bookId);
+            return ResponseEntity.ok("Book issued successfully!");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    // 🟢 9. NEW: Direct Issue by Roll No (For Librarian Manual Issue)
+
+    @PostMapping("/confirm/roll/{rollNo}/book/{bookId}")
+    public ResponseEntity<String> issueByRollNo(@PathVariable String rollNo, @PathVariable Long bookId) {
+        try {
+            bookIssueService.issueBookDirectlyByRollNo(rollNo, bookId);
+            return ResponseEntity.ok("Book issued successfully to Roll No: " + rollNo);
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

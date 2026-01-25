@@ -21,29 +21,87 @@ public class BookIssueService {
         this.studentRepository = studentRepository;
     }
 
-    // 1. STUDENT REQUESTS BOOK
+    //Direct Issue by Roll No (For Librarian Manual Entry)
+    public void issueBookDirectlyByRollNo(String rollNo, Long bookId) {
+        var student = studentRepository.findByRollNo(rollNo)
+                .orElseThrow(() -> new IllegalStateException("Student with Roll No '" + rollNo + "' not found"));
+        
+        var book = booksRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalStateException("Book not found"));
+
+        // Check availability
+        Long activeIssues = bookIssueRepository.countByBookIdAndStatusIn(
+                bookId, 
+                List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED)
+        );
+
+        if (activeIssues >= book.getCopies()) {
+            throw new IllegalStateException("All copies are currently busy.");
+        }
+
+        BookIssue issue = new BookIssue();
+        issue.setStudent(student);
+        issue.setBook(book);
+        issue.setStatus(IssueStatus.ISSUED); // Directly ISSUED
+        issue.setIssueDate(LocalDate.now());
+        issue.setDueDate(LocalDate.now().plusDays(14)); // Set due date (e.g. 14 days)
+        
+        bookIssueRepository.save(issue);
+    }
+
+    // Direct librarian issues (using ID - keeping for compatibility)
+    public void issueBookDirectly(Long studentId, Long bookId) {
+        var student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new IllegalStateException("Student not found"));
+        var book = booksRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalStateException("Book not found"));
+
+        // Checking Availability
+        Long activeIssues = bookIssueRepository.countByBookIdAndStatusIn(
+                bookId, 
+                List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED)
+        );
+
+        if (activeIssues >= book.getCopies()) {
+            throw new IllegalStateException("All copies are currently issued or requested.");
+        }
+
+        // Creating Record as ISSUED immediately
+        BookIssue issue = new BookIssue();
+        issue.setStudent(student);
+        issue.setBook(book);
+        issue.setStatus(IssueStatus.ISSUED); // Directly ISSUED
+        issue.setIssueDate(LocalDate.now());
+        issue.setDueDate(LocalDate.now().plusDays(14)); // Set due date
+        
+        bookIssueRepository.save(issue);
+    }
+
+    // STUDENT REQUESTS BOOK (Using Roll No)
     public void requestBook(String rollNo, Long bookId) {
         var student = studentRepository.findByRollNo(rollNo)
                 .orElseThrow(() -> new IllegalStateException("Student not found"));
         var book = booksRepository.findById(bookId)
                 .orElseThrow(() -> new IllegalStateException("Book not found"));
-        Long activeIssues=bookIssueRepository.countByBookIdAndStatusIn(bookId , List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED));
-        // Check if book is already requested or issued to ANYONE (simple logic)
-        // ideally, you check if copies > 0
-        if (activeIssues >= book.getCopies()) {
-    throw new IllegalStateException("All copies of this book are currently issued or requested.");
-}
+        
+        Long activeIssues = bookIssueRepository.countByBookIdAndStatusIn(
+                bookId, 
+                List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED)
+        );
        
-
+        if (activeIssues >= book.getCopies()) {
+            throw new IllegalStateException("All copies of this book are currently issued or requested.");
+        }
+       
         BookIssue issue = new BookIssue();
         issue.setStudent(student);
         issue.setBook(book);
-        issue.setStatus(IssueStatus.REQUESTED); // Initial Status
+        issue.setStatus(IssueStatus.REQUESTED); 
         issue.setRequestDate(LocalDate.now());
         bookIssueRepository.save(issue);
     }
 
-    // 2. LIBRARIAN APPROVES
+    // LIBRARIAN APPROVES
     public void approveIssue(Long issueId) {
         BookIssue issue = bookIssueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalStateException("Issue record not found"));
@@ -59,7 +117,7 @@ public class BookIssueService {
         bookIssueRepository.save(issue);
     }
 
-    // 3. LIBRARIAN REJECTS
+    // LIBRARIAN REJECTS
     public void rejectRequest(Long issueId) {
         BookIssue issue = bookIssueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalStateException("Issue record not found"));
@@ -67,7 +125,7 @@ public class BookIssueService {
         bookIssueRepository.save(issue);
     }
 
-    // 4. RETURN BOOK
+    // RETURN BOOK
     public void returnBook(Long issueId) {
         var issue = bookIssueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalStateException("Issue record not found"));
@@ -77,7 +135,7 @@ public class BookIssueService {
         bookIssueRepository.save(issue);
     }
 
-    // 5. HELPER GETTERS
+    // HELPER GETTERS
     public List<BookIssue> getAllIssuedBooks() {
         return bookIssueRepository.findAll();
     }

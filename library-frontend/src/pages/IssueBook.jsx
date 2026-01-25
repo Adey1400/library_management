@@ -3,9 +3,9 @@ import api from "../services/api";
 import { BookOpenIcon, UserIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
 
 export default function IssueBook() {
-  const [students, setStudents] = useState([]);
   const [books, setBooks] = useState([]);
-  const [issue, setIssue] = useState({ studentId: "", bookId: "" });
+  
+  const [issue, setIssue] = useState({ rollNo: "", bookId: "" });
   const [loading, setLoading] = useState(true);
   const [issuing, setIssuing] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -14,8 +14,8 @@ export default function IssueBook() {
     const loadData = async () => {
       setLoading(true);
       try {
-        const [sRes, bRes] = await Promise.all([api.get("/student"), api.get("/book")]);
-        setStudents(sRes.data || []);
+      
+        const bRes = await api.get("/book");
         setBooks(bRes.data || []);
       } catch (err) {
         alert("Failed to load data");
@@ -31,14 +31,19 @@ export default function IssueBook() {
     setIssuing(true);
     setSuccessMsg("");
     try {
-      await api.post(`/issue/student/${issue.studentId}/book/${issue.bookId}`);
+ 
+      await api.post(`/issue/confirm/roll/${encodeURIComponent(issue.rollNo)}/book/${issue.bookId}`);
+      
       setSuccessMsg("Book issued successfully!");
-      setIssue({ studentId: "", bookId: "" });
-      // Refresh books to update availability if needed
+      setIssue({ rollNo: "", bookId: "" }); 
+      
+    
       const bRes = await api.get("/book");
       setBooks(bRes.data || []);
     } catch (error) {
-      alert("Failed: " + (error.response?.data?.message || "Unknown error"));
+     
+      const msg = error.response?.data || "Unknown error";
+      alert("Failed: " + msg);
     } finally {
       setIssuing(false);
     }
@@ -62,28 +67,26 @@ export default function IssueBook() {
           )}
 
           <form onSubmit={handleIssue} className="space-y-6">
-            {/* Student Select */}
+            
+    
             <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Select Student</label>
+              <label className="text-sm font-medium text-gray-700">Student Roll Number</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <UserIcon className="h-5 w-5 text-gray-400" />
                 </div>
-                <select
-                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none bg-white appearance-none"
-                  value={issue.studentId}
-                  onChange={(e) => setIssue({ ...issue, studentId: e.target.value })}
+                <input
+                  type="text"
+                  placeholder="Enter Roll Number (e.g. 54 or NIT/2024/...)"
+                  className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                  value={issue.rollNo} 
+                  onChange={(e) => setIssue({ ...issue, rollNo: e.target.value })}
                   required
-                >
-                  <option value="">Choose a student...</option>
-                  {students.map((s) => (
-                    <option key={s.id} value={s.id}>{s.name} ({s.email})</option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
-            {/* Book Select */}
+            {/* Book Select (Remains the same) */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">Select Book</label>
               <div className="relative">
@@ -107,7 +110,7 @@ export default function IssueBook() {
             <button
               type="submit"
               disabled={issuing}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition-all shadow-md shadow-indigo-200 disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
             >
               {issuing ? "Processing..." : (
                 <>Issue Book <ArrowRightIcon className="w-5 h-5" /></>

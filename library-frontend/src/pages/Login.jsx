@@ -14,14 +14,26 @@ export default function Login() {
       console.log("Sending Login Data:", form);
       const res = await api.post("/login", form);
       console.log("🟢 Server Response:", res.data);
-     if (res.data && res.data.token) {
+
+      if (res.data && res.data.token) {
           console.log("✅ Token found! Saving to storage...");
+          
+          // Save standard auth data
           localStorage.setItem("token", res.data.token);
           localStorage.setItem("role", res.data.role);
           localStorage.setItem("name", res.data.name);
           
-          // Verify it was saved
-          console.log("🔍 Saved Token:", localStorage.getItem("token"));
+          // 🟢 NEW: Save Roll Number if available (For Students)
+          if (res.data.rollNo) {
+              console.log("🎓 Saving Roll No:", res.data.rollNo);
+              localStorage.setItem("rollNo", res.data.rollNo);
+          } else {
+              // Clear it if logging in as Librarian/Admin so we don't use old data
+              localStorage.removeItem("rollNo");
+          }
+          
+          // Dispatch event so other components (like Navbar) update immediately
+          window.dispatchEvent(new Event("storage"));
           
           navigate("/books"); 
       } else {
