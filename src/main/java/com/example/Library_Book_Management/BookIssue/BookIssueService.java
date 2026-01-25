@@ -34,8 +34,8 @@ public class BookIssueService {
                 bookId, 
                 List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED)
         );
-
-        if (activeIssues >= book.getCopies()) {
+         int totalCopies = book.getCopies() != null ? book.getCopies() : 1;
+        if (activeIssues >= totalCopies) {
             throw new IllegalStateException("All copies are currently busy.");
         }
 

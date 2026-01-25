@@ -103,6 +103,9 @@ public class BookIssueController {
             return ResponseEntity.ok("Book issued successfully to Roll No: " + rollNo);
         } catch (IllegalStateException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Server Error: " + e.getMessage());
         }
     }
 }

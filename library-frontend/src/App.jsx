@@ -11,6 +11,7 @@ import IssueBook from "./pages/IssueBook";
 import Profile from "./pages/Profile"
 // Components
 import Layout from "./components/Layout";
+import LibrarianDashboard from "./components/LibarianDashboard";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/books" element={<BookPages />} />
           <Route path="/students" element={<Students />} />
+
           <Route path="/issues" element={<IssueBook />} />
            <Route path="/profile" element={<Profile/>} />
         </Route>

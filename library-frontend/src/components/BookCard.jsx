@@ -13,7 +13,7 @@ import { formatDate } from "../lib/utils";
 export default function BookCard({ book, onDelete }) {
   const [deleting, setDeleting] = useState(false);
   const [requesting, setRequesting] = useState(false);
-
+  const role = localStorage.getItem("role");
  
   const handleDelete = async () => {
     if (!window.confirm(`Delete "${book.bookName}"?`)) return;
@@ -93,8 +93,7 @@ const handleRequest = async () => {
             </button>
           )}
 
-          
-          <button
+          {role ==="Libarian"&&(  <button
             onClick={handleDelete}
             disabled={deleting}
             className="flex items-center gap-1.5 text-xs font-medium text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
@@ -105,7 +104,8 @@ const handleRequest = async () => {
             ) : (
               <TrashIcon className="h-4 w-4" />
             )}
-          </button>
+          </button>)}
+        
         </div>
       </div>
     </article>

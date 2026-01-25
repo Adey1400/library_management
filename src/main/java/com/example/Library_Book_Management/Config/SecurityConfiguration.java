@@ -36,8 +36,16 @@ public class SecurityConfiguration {
                 return config;
             }))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/register", "/login", "/error","/book/**").permitAll() 
+                //public endpoints
+                .requestMatchers("/register", "/login", "/error").permitAll() 
+                
                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() 
+                //Libarian only allowed
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/book/**").hasAuthority("LIBRARIAN")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/book/**").hasAuthority("LIBRARIAN")
+                .requestMatchers(org.springframework.http.HttpMethod.PUT, "/book/**").hasAuthority("LIBRARIAN")
+                //Both libarian and student can see the book
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/book/**").authenticated()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
