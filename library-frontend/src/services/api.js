@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-// Create an Axios instance
+const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
 const api = axios.create({
-    baseURL: 'http://localhost:8080', // Connects to Spring Boot
-});
-
+    baseURL: baseURL,
+}
+)
 // Add a request interceptor to attach the Token
 api.interceptors.request.use(
     (config) => {
