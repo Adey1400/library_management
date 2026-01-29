@@ -57,7 +57,7 @@ public void deleteBooks(Long bookId) {
 
 // search a book
 public List <Books> getBooks(String search){
-    if( search !=null || !search.isEmpty()){
+    if( search !=null && !search.isEmpty()){
         return booksRepository.findByBookNameContainingIgnoreCaseOrAuthorContainingIgnoreCase(search, search);
     }
     return booksRepository.findAll();
