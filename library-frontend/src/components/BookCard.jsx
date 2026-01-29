@@ -13,7 +13,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { formatDate } from "../lib/utils";
 
-export default function BookCard({ book, onDelete }) {
+export default function BookCard({ book, onDelete , onUpdate}) {
   const [deleting, setDeleting] = useState(false);
   const [requesting, setRequesting] = useState(false);
 
@@ -42,8 +42,10 @@ export default function BookCard({ book, onDelete }) {
 const handleUpdate = async () => {
     try {
       await api.put(`/book/${book.id}`, editForm);
-      setIsEditing(false);
-      window.location.reload(); 
+     if(onUpdate){
+      onUpdate(book.id, editForm);
+     }
+     setIsEditing(false)
     } catch (err) {
       alert("Update failed: " + (err.response?.data || err.message));
     }
@@ -166,4 +168,5 @@ const handleRequest = async () => {
 BookCard.propTypes = {
   book: PropTypes.object.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func,
 };
