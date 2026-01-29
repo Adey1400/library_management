@@ -8,7 +8,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/issue")
-// @CrossOrigin("*") // Uncomment this if not handled in WebConfig
+
 public class BookIssueController {
 
     private final BookIssueService bookIssueService;
@@ -22,7 +22,7 @@ public class BookIssueController {
     // 🟢 STUDENT ENDPOINTS
     // ==========================================
 
-    // 1. Student Requests a Book
+
     @PostMapping("/request/book/{bookId}")
     public ResponseEntity<String> requestBook(
             @PathVariable Long bookId, 
@@ -36,7 +36,7 @@ public class BookIssueController {
         }
     }
 
-    // 2. Get history for a specific student (My Requests)
+
     @GetMapping("/student/{studentId}")
     public ResponseEntity<List<BookIssue>> getStudentHistory(@PathVariable Long studentId) {
         return ResponseEntity.ok(bookIssueService.getStudentHistory(studentId));
@@ -46,19 +46,26 @@ public class BookIssueController {
     // 🔵 LIBRARIAN ENDPOINTS
     // ==========================================
 
-    // 3. Get ALL Pending Requests (For Librarian Dashboard)
+    
     @GetMapping("/pending")
     public ResponseEntity<List<BookIssue>> getPendingRequests() {
         return ResponseEntity.ok(bookIssueService.getPendingRequests());
     }
 
-    // 4. Get ALL records (History/Logs)
+    @GetMapping("/active")
+    public ResponseEntity<List<BookIssue>> getActiveIssues() {
+    return ResponseEntity.ok(bookIssueService.getActiveIssues());
+}
+
     @GetMapping("/all")
     public ResponseEntity<List<BookIssue>> getAllTransactions() {
         return ResponseEntity.ok(bookIssueService.getAllIssuedBooks());
     }
 
-    // 5. Approve a Request (Changes status REQUESTED -> ISSUED)
+    @GetMapping("/my-history")
+    public ResponseEntity<List<BookIssue>> getMyHistory(@RequestParam String rollNo){
+        return ResponseEntity.ok(bookIssueService.getStudentHistoryByRollNo(rollNo));
+    }
     @PutMapping("/approve/{issueId}")
     public ResponseEntity<String> approveRequest(@PathVariable Long issueId) {
         try {
@@ -69,21 +76,21 @@ public class BookIssueController {
         }
     }
 
-    // 6. Reject a Request (Changes status REQUESTED -> REJECTED)
+
     @PutMapping("/reject/{issueId}")
     public ResponseEntity<String> rejectRequest(@PathVariable Long issueId) {
         bookIssueService.rejectRequest(issueId);
         return ResponseEntity.ok("Request rejected.");
     }
 
-    // 7. Return a Book (Changes status ISSUED -> RETURNED)
+
     @PutMapping("/return/{issueId}")
     public ResponseEntity<String> returnBook(@PathVariable Long issueId) {
         bookIssueService.returnBook(issueId);
         return ResponseEntity.ok("Book returned successfully.");
     }
 
-    // 8. Direct Issue (By Student ID) - Kept for backup/legacy
+
     @PostMapping("/student/{studentId}/book/{bookId}")
     public ResponseEntity<String> directIssue(@PathVariable Long studentId, @PathVariable Long bookId) {
         try {
@@ -94,7 +101,7 @@ public class BookIssueController {
         }
     }
 
-    // 🟢 9. NEW: Direct Issue by Roll No (For Librarian Manual Issue)
+
 
     @PostMapping("/confirm/roll/{rollNo}/book/{bookId}")
     public ResponseEntity<String> issueByRollNo(@PathVariable String rollNo, @PathVariable Long bookId) {
@@ -108,4 +115,6 @@ public class BookIssueController {
             return ResponseEntity.status(500).body("Server Error: " + e.getMessage());
         }
     }
+
+
 }

@@ -16,7 +16,8 @@ public class RegisterRequest {
     private String email;
     private String password;
     private Role role; 
-
+    private String currentYear;
+    private String semester;
 
     private String department;
     private String rollNo;

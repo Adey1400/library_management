@@ -124,7 +124,10 @@ public class BookIssueService {
         issue.setStatus(IssueStatus.REJECTED);
         bookIssueRepository.save(issue);
     }
-
+    
+    public List<BookIssue> getActiveIssues() {
+    return bookIssueRepository.findAllByStatus(IssueStatus.ISSUED);
+}
     // RETURN BOOK
     public void returnBook(Long issueId) {
         var issue = bookIssueRepository.findById(issueId)
@@ -147,4 +150,10 @@ public class BookIssueService {
     public List<BookIssue> getStudentHistory(Long studentId) {
         return bookIssueRepository.findAllByStudentId(studentId);
     }
+
+    public List<BookIssue> getStudentHistoryByRollNo(String rollNo){
+         var student =studentRepository.findByRollNo(rollNo).orElseThrow(()-> new IllegalStateException("Student with Roll No " + rollNo + " not found"));
+         return bookIssueRepository.findAllByStudentId(student.getId());
 }
+    }
+    

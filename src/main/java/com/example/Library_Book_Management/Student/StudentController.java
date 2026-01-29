@@ -15,32 +15,44 @@ public class StudentController {
 
     private final StudentService studentService;
     private final StudentRepository studentRepository;
+
     @Autowired
     public StudentController(StudentService studentService, StudentRepository studentRepository) {
         this.studentService = studentService;
-        this.studentRepository= studentRepository;
+        this.studentRepository = studentRepository;
     }
-    
+
     @GetMapping("/profile")
-    public ResponseEntity<Student> getMyProfile (Authentication authentication){
-        String email =authentication.getName();
+    public ResponseEntity<Student> getMyProfile(Authentication authentication) {
+        String email = authentication.getName();
         Optional<Student> student = studentRepository.findByEmail(email);
-        
+
         return student.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(404).body(null));
     }
+
     @GetMapping
     public List<Student> getAllStudents() {
         return studentService.getAllStudents();
     }
-
 
     @PostMapping
     public void registerNewStudent(@RequestBody Student student) {
         studentService.addStudent(student);
     }
 
-  
+    @PutMapping(path = "/{studentId}")
+    public ResponseEntity<String> updateStudent(
+            @PathVariable("studentId") Long studentId,
+            @RequestBody Student student) {
+        try {
+            studentService.updateStudent(studentId, student);
+            return ResponseEntity.ok("Student profile updated successfully");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @DeleteMapping(path = "/{studentId}")
     public void deleteStudent(@PathVariable("studentId") Long studentId) {
         studentService.deleteStudent(studentId);

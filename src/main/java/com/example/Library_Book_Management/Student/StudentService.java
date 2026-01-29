@@ -20,13 +20,11 @@ public class StudentService {
     this.userRepo = userRepo;
   }
   
-  //get all student
 public List<Student> getAllStudents(){
     return studentRepository.findAll();
   }
 
 
-  //add Student
   public Student addStudent(Student student){
      Optional<Student> existingStudent =studentRepository.findByEmail(student.getEmail());
      if(existingStudent.isPresent()){
@@ -36,7 +34,6 @@ public List<Student> getAllStudents(){
      return student;
   }
 
-   // Delete student by ID
    @Transactional
     public void deleteStudent(Long id) {
       Student student = studentRepository.findById(id).orElseThrow(()-> new IllegalStateException("Student with id " + id + " does not exist"));
@@ -48,11 +45,38 @@ public List<Student> getAllStudents(){
     }
         
 
-      // 🔹 (Optional) Get one student by ID
     public Student getStudentById(Long id) {
         return studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Student with id " + id + " not found"));
     }
 
 
+
+@Transactional
+public void updateStudent(Long studentId, Student updatedDetails) {
+    Student student = studentRepository.findById(studentId)
+            .orElseThrow(() -> new IllegalStateException("Student with id " + studentId + " does not exist"));
+
+
+    if (updatedDetails.getName() != null && !updatedDetails.getName().isEmpty()) {
+        student.setName(updatedDetails.getName());
+    }
+
+
+    if (updatedDetails.getDepartment() != null && !updatedDetails.getDepartment().isEmpty()) {
+        student.setDepartment(updatedDetails.getDepartment());
+    }
+
+
+    if (updatedDetails.getCurrentYear() != null && !updatedDetails.getCurrentYear().isEmpty()) {
+        student.setCurrentYear(updatedDetails.getCurrentYear());
+    }
+
+
+    if (updatedDetails.getSemester() != null && !updatedDetails.getSemester().isEmpty()) {
+        student.setSemester(updatedDetails.getSemester());
+    }
+
+    studentRepository.save(student);
+}
 }

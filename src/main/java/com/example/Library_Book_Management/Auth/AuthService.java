@@ -49,6 +49,8 @@ public class AuthService {
                     .email(request.getEmail())
                     .department(request.getDepartment())
                     .rollNo(request.getRollNo())        
+                    .currentYear(request.getCurrentYear())
+                     .semester(request.getSemester())
                     .user(savedUser)             
                     .build();
             

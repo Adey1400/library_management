@@ -27,7 +27,8 @@ public class Student {
     private String email;
     private String department;
     private String rollNo;
-    
+    private String currentYear;
+    private String semester;
     @Builder.Default
     private LocalDate joinedDate = LocalDate.now();
 
