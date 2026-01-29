@@ -1,10 +1,10 @@
-// src/api/axios.js
 import axios from "axios";
+const baseURL = import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL 
+  : "http://localhost:8080";
 
-const baseURL= import.meta.env.VITE_API_URL?`${import.meta.env.VITE_API_URL}/api/v1`:
-"http://localhost:8080/api/v1";
 const api = axios.create({
-  baseURL: baseURL,
+  baseURL: baseURL, 
   timeout: 8000
 });
 

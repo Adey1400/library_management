@@ -42,7 +42,7 @@ public void deleteBooks(Long bookId) {
         throw new IllegalStateException("Book with id " + bookId + " doesnt exist");
     }
 
-    // 🟢 FIX: Check if the book is currently REQUESTED or ISSUED
+    
     boolean isActive = bookIssueRepository.existsByBookIdAndStatusIn(
             bookId, 
             List.of(IssueStatus.REQUESTED, IssueStatus.ISSUED) // Check these statuses
@@ -53,6 +53,14 @@ public void deleteBooks(Long bookId) {
     }
 
     booksRepository.deleteById(bookId);
+}
+
+// search a book
+public List <Books> getBooks(String search){
+    if( search !=null || !search.isEmpty()){
+        return booksRepository.findByBookNameContainingIgnoreCaseOrAuthorContainingIgnoreCase(search, search);
+    }
+    return booksRepository.findAll();
 }
  
 @Transactional

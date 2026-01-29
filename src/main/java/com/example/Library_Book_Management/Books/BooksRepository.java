@@ -1,5 +1,6 @@
 package com.example.Library_Book_Management.Books;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,4 +19,7 @@ public interface BooksRepository extends JpaRepository<Books, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select b from Books b where b.id = :id")
     Optional<Books> findByIdForUpdate(@Param("id") Long id);
+
+    List<Books> findByBookNameContainingIgnoreCaseOrAuthorContainingIgnoreCase(String bookName, String author);
 }
+
