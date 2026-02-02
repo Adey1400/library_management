@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import Loader from "../components/Loader";
+import toast from "react-hot-toast";
 import { 
   AcademicCapIcon, 
   BuildingLibraryIcon, 
@@ -67,9 +68,9 @@ export default function Profile() {
         // Update UI locally
         setProfile({ ...profile, ...payload });
         setIsEditing(false);
-        alert("Profile Updated Successfully!");
+        toast.success("Profile Updated Successfully!");
     } catch (err) {
-        alert("Update Failed: " + (err.response?.data || "Server Error"));
+        toast.error("Update Failed: " + (err.response?.data || "Server Error"));
     }
   };
 

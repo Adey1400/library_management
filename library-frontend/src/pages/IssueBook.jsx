@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
 import Loader from "../components/Loader";
+import toast from "react-hot-toast";
 import { 
   BookOpenIcon, 
   UserIcon, 
@@ -64,11 +65,11 @@ export default function IssueBook() {
     setManualSuccessMsg("");
     try {
       await api.post(`/issue/confirm/roll/${encodeURIComponent(issue.rollNo)}/book/${issue.bookId}`);
-      setManualSuccessMsg("Book issued successfully!");
+     toast.success("Book issued successfully!");
       setIssue({ rollNo: "", bookId: "" }); 
       loadAllData();
     } catch (error) {
-      alert("Failed: " + (error.response?.data || "Unknown error"));
+     toast.error("Failed: " + (error.response?.data || "Unknown error"));
     } finally {
       setIssuing(false);
     }
@@ -79,9 +80,10 @@ export default function IssueBook() {
     setProcessingId(issueId);
     try {
       await api.put(`/issue/approve/${issueId}`);
+      toast.success("Request Approved");
       loadAllData();
     } catch (err) {
-      alert("Error: " + (err.response?.data || "Approval Failed"));
+      toast.error("Error: " + (err.response?.data || "Approval Failed"));
     } finally {
       setProcessingId(null);
     }
@@ -93,9 +95,10 @@ export default function IssueBook() {
     setProcessingId(issueId);
     try {
       await api.put(`/issue/reject/${issueId}`);
+      toast.success("Request Rejected");
       loadAllData(); 
     } catch (err) {
-      alert("Error: " + (err.response?.data || "Rejection Failed"));
+      toast.error("Error: " + (err.response?.data || "Rejection Failed"));
     } finally {
       setProcessingId(null);
     }
@@ -107,10 +110,10 @@ export default function IssueBook() {
     setProcessingId(issueId);
     try {
         await api.put(`/issue/return/${issueId}`);
-        alert("Book Returned Successfully!");
+        toast.success("Book Returned Successfully!");
         loadAllData(); 
     } catch (err) {
-        alert("Return Failed: " + (err.response?.data || "Server Error"));
+        toast.error("Return Failed: " + (err.response?.data || "Server Error"));
     } finally {
         setProcessingId(null);
     }

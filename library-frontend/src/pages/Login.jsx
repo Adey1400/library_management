@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
-
+import toast from "react-hot-toast";
 export default function Login() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -37,16 +37,16 @@ export default function Login() {
           
           // Dispatch event so other components (like Navbar) update immediately
           window.dispatchEvent(new Event("storage"));
-          
+           toast.success("Login Successful!");
           navigate("/books"); 
       } else {
           console.error("❌ Response missing token:", res.data);
-          alert("Login successful but no token received!");
+       
       }
     } catch (err) {
       console.error("Login Error Details:", err);
       const msg = err.response?.data?.error || "Invalid credentials";
-      alert("Login Failed: " + msg);
+     toast.error("Login Failed: " + msg);
     } finally {
       setLoading(false);
     }

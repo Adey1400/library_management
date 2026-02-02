@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import api from "../services/api"; 
+import toast from "react-hot-toast";
+
 import { 
   TrashIcon, 
   BookOpenIcon, 
@@ -31,8 +33,9 @@ export default function BookCard({ book, onDelete , onUpdate}) {
     setDeleting(true);
     try {
       await onDelete(book.id);
+      toast.success("Book deleted");
     } catch (err) {
-      alert("Failed: " + err.message);
+      toast.error("Failed: " + err.message);
     } finally {
       setDeleting(false);
     }
@@ -44,10 +47,11 @@ const handleUpdate = async () => {
       await api.put(`/book/${book.id}`, editForm);
      if(onUpdate){
       onUpdate(book.id, editForm);
+      toast.success("Book updated!");
      }
      setIsEditing(false)
     } catch (err) {
-      alert("Update failed: " + (err.response?.data || err.message));
+      toast.error("Update failed: " + (err.response?.data || err.message));
     }
   };
 
@@ -56,7 +60,7 @@ const handleRequest = async () => {
     const myRollNo = localStorage.getItem("rollNo"); 
 
     if (!myRollNo) {
-        alert("Roll Number not found. Please log in again.");
+        toast.error("Roll Number not found. Please log in again.");
         return;
     }
 
@@ -64,9 +68,9 @@ const handleRequest = async () => {
         // 🟢 encodeURIComponent is crucial! It turns "/" into "%2F" so the URL doesn't break
         await api.post(`/issue/request/book/${book.id}?rollNo=${encodeURIComponent(myRollNo)}`);
         
-        alert("Request sent successfully!");
+        toast.success("Request sent successfully!");
     } catch (err) {
-        alert(err.response?.data || "Request failed");
+        toast.error(err.response?.data || "Request failed");
     }
 };
 

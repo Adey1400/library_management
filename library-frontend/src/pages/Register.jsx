@@ -6,7 +6,7 @@ import {
   BookOpenIcon,
   ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
-
+import toast from "react-hot-toast";
 export default function Register() {
   const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState(null);
@@ -50,16 +50,16 @@ export default function Register() {
 
         window.dispatchEvent(new Event("storage"));
 
-        alert("Registration Successful!");
+    toast.success("Registration Successful!");
         navigate("/books");
       } else {
-        alert("Registration Successful! Please Login.");
+       toast.success("Registration Successful! Please Login.");
         navigate("/login");
       }
     } catch (err) {
       console.error(err);
       const errorMsg = err.response?.data?.message || err.message;
-      alert(`Registration Failed: ${errorMsg}`);
+     toast.error(`Registration Failed: ${errorMsg}`);
     } finally {
       setLoading(false);
     }

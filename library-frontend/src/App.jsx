@@ -10,7 +10,7 @@ import Students from "./pages/StudentPage";
 import IssueBook from "./pages/IssueBook";
 import Profile from "./pages/Profile";
 import MyBooks from "./pages/MyBooks"; 
-
+import { Toaster } from "react-hot-toast";
 
 import Layout from "./components/Layout";
 
@@ -23,6 +23,7 @@ const PrivateRoute = ({ children }) => {
 function App() {
   return (
     <Router>
+        <Toaster position="top-right" reverseOrder={false} />
       <Routes>
 
         <Route path="/" element={<Home />} />
