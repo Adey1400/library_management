@@ -38,11 +38,5 @@ public class Books {
         this.copies = copies;
         this.isIssued = false;
     }
-    // Legacy Constructor (defaults copies to 1)
-    public Books(String bookName, String author) {
-        this.bookName = bookName;
-        this.author = author;
-        this.copies = 1; // Default
-        this.isIssued = false;
-    }
+    
 }

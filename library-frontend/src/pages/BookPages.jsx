@@ -3,6 +3,7 @@ import api from "../services/api";
 import BookCard from "../components/BookCard";
 import Loader from "../components/Loader";
 import { PlusIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import toast from "react-hot-toast";
 
 export default function BookPages() {
   const [books, setBooks] = useState([]);
@@ -44,9 +45,9 @@ export default function BookPages() {
       // Optimistic update or refetch
       await fetchBooks(search);
       setForm({ bookName: "", author: "" });
-      alert("Book Added Successfully");
+      toast.success("Book Added Successfully");
     } catch (err) {
-      alert("Failed to add book");
+      toast.error("Failed to add book");
     } finally {
       setSubmitting(false);
     }
@@ -62,8 +63,9 @@ export default function BookPages() {
     try {
       await api.delete(`/book/${id}`);
       setBooks((prev) => prev.filter((b) => b.id !== id));
+      toast.success("Deleted successfully");
     } catch (err) {
-      alert("Delete failed: " + err.message);
+      toast.error("Delete failed: " + err.message);
     }
   };
 
